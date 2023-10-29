@@ -1,6 +1,7 @@
 package handler
 
 import (
+	mwLogger "Booksiary/authorization-service/internal/http-server/middleware"
 	"Booksiary/authorization-service/pkg/service"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -22,7 +23,7 @@ func NewHandler(service *service.Service, logger *slog.Logger) *Handler {
 func (h *Handler) Init() *chi.Mux {
 	r := chi.NewRouter()
 
-	r.Use(middleware.Logger)
+	r.Use(mwLogger.New(&h.L))
 	r.Use(middleware.AllowContentType("application/json"))
 	r.Route("/api", func(r chi.Router) {
 		r.Post("/create-user", h.createUser(chi.NewRouteContext()))
