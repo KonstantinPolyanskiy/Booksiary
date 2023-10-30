@@ -25,14 +25,14 @@ func (h *Handler) createUser(chiCtx *chi.Context) http.HandlerFunc {
 			return
 		}
 
-		id, err := h.Service.Creator.User(input)
+		err = h.Service.Creator.UserCode(input)
 		if err != nil {
 			h.L.Error("idk")
 			custom_response.NewErrorResponse(w, r, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		responseUserCreateOK(w, r, input, id)
+		render.JSON(w, r, "Код отправлен на почту")
 
 	}
 }
