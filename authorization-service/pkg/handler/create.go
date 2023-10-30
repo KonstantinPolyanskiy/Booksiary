@@ -37,10 +37,35 @@ func (h *Handler) createUser(chiCtx *chi.Context) http.HandlerFunc {
 	}
 }
 func (h *Handler) createUserCallback(chi *chi.Context) http.HandlerFunc {
-	//TODO: коллбек на создание пользователя
-	panic("сделай")
+	return func(w http.ResponseWriter, r *http.Request) {
+		var input types.Code
+
+		err := render.DecodeJSON(r.Body, &input)
+		if errors.Is(err, io.EOF) {
+			h.L.Debug("пустое тело")
+			custom_response.NewErrorResponse(w, r, http.StatusBadRequest, "empty body")
+			return
+		}
+		if err != nil {
+			h.L.Debug("некорректное тело")
+			custom_response.NewErrorResponse(w, r, http.StatusBadRequest, "incorrect body")
+			return
+		}
+
+		user, err := h.Service.Creator.CheckCode(input)
+		if err != nil {
+			h.L.Error(err.Error())
+		}
+		id, err := h.Service.Saver.Save(user)
+
+		render.JSON(w, r, id)
+
+	}
 }
 
+func responseCreatedCode(w http.ResponseWriter, r *http.Request, code int) {
+	render.JSON(w, r, code)
+}
 func responseUserCreateOK(wr http.ResponseWriter, r *http.Request, create types.User, id int) {
 	render.JSON(wr, r, types.UserCreate{
 		Id:   id,
