@@ -2,10 +2,15 @@ package types
 
 import "time"
 
-type User struct {
+type Personality struct {
 	Name    string `json:"name"`
 	Surname string `json:"surname"`
-	Email   string `json:"email"`
+}
+
+type User struct {
+	Uuid        string      `json:"id"`
+	Personality Personality `json:"personality"`
+	Email       string      `json:"email"`
 }
 
 type UserCreate struct {
@@ -13,13 +18,13 @@ type UserCreate struct {
 	User
 }
 
-type SaveUser struct {
-	CodeData
-	User
+type SavingUser struct {
+	User User
+	Code MailAccessCodeData
 }
-type CodeData struct {
-	Code      int
-	ExpiredAt time.Time
+type MailAccessCodeData struct {
+	AccessCode int
+	ExpiredAt  time.Time
 }
 type Code struct {
 	Code int `json:"code"`

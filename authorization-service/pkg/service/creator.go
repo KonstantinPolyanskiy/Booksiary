@@ -6,23 +6,20 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"runtime"
 	"sync"
 	"time"
 )
 
-var ResChan = make(chan Result, 10)
+var resChan = make(chan Result)
 
 type Result struct {
 	Message string
 	Error   error
 }
 
-var expiredChan = make(chan bool)
-
 var mu sync.Mutex
 
-var CodeDataMap = map[types.Code]types.SaveUser{}
+var codeDataMap = map[types.Code]types.SavingUser{}
 
 type CreatorService struct {
 }
@@ -31,54 +28,55 @@ func NewCreatorService() *CreatorService {
 	return &CreatorService{}
 }
 
-func (cs *CreatorService) UserCode(user types.SaveUser) error {
-	user.CodeData = types.CodeData{
-		Code:      random.Code(),
-		ExpiredAt: time.Now().Add(2 * time.Minute),
+func (cs *CreatorService) UserCode(user types.SavingUser) error {
+	user.Code = types.MailAccessCodeData{
+		AccessCode: random.Code(),
+		ExpiredAt:  time.Now().Add(2 * time.Minute),
 	}
 
-	log.Print("Код - ", user.Code)
+	code := types.Code{Code: user.Code.AccessCode}
 
-	go AddToMap(types.Code{Code: user.Code}, user)
+	log.Print("Код - ", code)
+
+	go AddToMap(code, user)
 	go checkCodeExpiration(user)
 
-	return CheckErrorChannel(ResChan)
+	return CheckErrorChannel(resChan)
 }
 
-func (cs *CreatorService) CheckCode(c types.Code) (types.SaveUser, error) {
-	var user types.SaveUser
+func (cs *CreatorService) CheckCode(code types.Code) (types.SavingUser, error) {
+	var user types.SavingUser
 
-	if _, ok := CodeDataMap[c]; !ok {
-		ResChan <- Result{
-			Message: fmt.Sprintf("Код %v не найден", c),
+	if _, ok := codeDataMap[code]; !ok {
+		resChan <- Result{
+			Message: fmt.Sprintf("Код %v не найден", code),
 			Error:   errors.New("провалено"),
 		}
-		return user, CheckErrorChannel(ResChan)
+		return user, CheckErrorChannel(resChan)
 	}
-	user = CodeDataMap[c]
+	user = codeDataMap[code]
 
 	return user, nil
 }
 
-func checkCodeExpiration(user types.SaveUser) {
-	t := time.NewTimer(time.Until(user.ExpiredAt))
+func checkCodeExpiration(user types.SavingUser) {
+	t := time.NewTimer(time.Until(user.Code.ExpiredAt))
 	<-t.C
+
+	code := types.Code{Code: user.Code.AccessCode}
+
 	mu.Lock()
-	delete(CodeDataMap, types.Code{Code: user.Code})
+	delete(codeDataMap, code)
 	mu.Unlock()
-	ResChan <- Result{
-		Message: fmt.Sprintf("Время для кода %v истекло %v", user.Code, time.Now().Sub(user.ExpiredAt)),
+
+	resChan <- Result{
+		Message: fmt.Sprintf("Время для кода %v истекло %v назад", user.Code.AccessCode, time.Now().Sub(user.Code.ExpiredAt).Milliseconds()),
 		Error:   errors.New("expired"),
 	}
 }
 
-func AddToMap(c types.Code, user types.SaveUser) {
-	var ms runtime.MemStats
+func AddToMap(c types.Code, user types.SavingUser) {
 	mu.Lock()
-	CodeDataMap[c] = user
+	codeDataMap[c] = user
 	mu.Unlock()
-
-	runtime.ReadMemStats(&ms)
-
-	fmt.Println("Памяти - ", ms.Alloc/1024/1024)
 }

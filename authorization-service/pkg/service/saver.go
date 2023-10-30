@@ -8,7 +8,7 @@ import (
 type SaverService struct {
 }
 
-func (s *SaverService) Save(user types.SaveUser) (int, error) {
+func (s *SaverService) Save(user types.SavingUser) (int, error) {
 	log.Printf("Пользователь %v сохранен", user)
 	return 1, nil
 }

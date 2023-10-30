@@ -12,7 +12,7 @@ import (
 
 func (h *Handler) createUser(chiCtx *chi.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var input types.SaveUser
+		var input types.SavingUser
 		err := render.DecodeJSON(r.Body, &input)
 		if errors.Is(err, io.EOF) {
 			h.L.Error("тело пустое")
