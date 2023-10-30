@@ -3,7 +3,8 @@ package service
 import "Booksiary/authorization-service/internal/types"
 
 type Creator interface {
-	User(user types.User) (int, error)
+	// UserCode создает код подтверждения почты
+	UserCode(user types.User) error
 }
 type Service struct {
 	Creator
