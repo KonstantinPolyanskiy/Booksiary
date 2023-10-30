@@ -27,7 +27,7 @@ func (h *Handler) Init() *chi.Mux {
 	r.Use(middleware.AllowContentType("application/json"))
 	r.Route("/api", func(r chi.Router) {
 		r.Post("/create-user", h.createUser(chi.NewRouteContext()))
-		//r.Post("/create-user-callback", h.createUserCallback(chi.NewRouteContext()))
+		r.Post("/create-user-callback", h.createUserCallback(chi.NewRouteContext()))
 
 	})
 
