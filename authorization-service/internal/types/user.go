@@ -21,4 +21,6 @@ type CodeData struct {
 	Code      int
 	ExpiredAt time.Time
 }
-type Code int
+type Code struct {
+	Code int `json:"code"`
+}
