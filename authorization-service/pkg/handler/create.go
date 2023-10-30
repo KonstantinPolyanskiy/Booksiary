@@ -1,7 +1,7 @@
 package handler
 
 import (
-	custom_response "Booksiary/authorization-service/internal/custom-response"
+	customResponse "Booksiary/authorization-service/internal/custom-response"
 	"Booksiary/authorization-service/internal/types"
 	"errors"
 	"github.com/go-chi/chi/v5"
@@ -16,19 +16,19 @@ func (h *Handler) createUser(chiCtx *chi.Context) http.HandlerFunc {
 		err := render.DecodeJSON(r.Body, &input)
 		if errors.Is(err, io.EOF) {
 			h.L.Error("тело пустое")
-			custom_response.NewErrorResponse(w, r, http.StatusBadRequest, "empty body")
+			customResponse.NewErrorResponse(w, r, http.StatusBadRequest, "empty body")
 			return
 		}
 		if err != nil {
 			h.L.Error("некорректное тело")
-			custom_response.NewErrorResponse(w, r, http.StatusBadRequest, "неправильное тело")
+			customResponse.NewErrorResponse(w, r, http.StatusBadRequest, "неправильное тело")
 			return
 		}
 
 		err = h.Service.Creator.UserCode(input)
 		if err != nil {
 			h.L.Error("idk")
-			custom_response.NewErrorResponse(w, r, http.StatusInternalServerError, err.Error())
+			customResponse.NewErrorResponse(w, r, http.StatusInternalServerError, err.Error())
 			return
 		}
 
@@ -43,12 +43,12 @@ func (h *Handler) createUserCallback(chi *chi.Context) http.HandlerFunc {
 		err := render.DecodeJSON(r.Body, &input)
 		if errors.Is(err, io.EOF) {
 			h.L.Debug("пустое тело")
-			custom_response.NewErrorResponse(w, r, http.StatusBadRequest, "empty body")
+			customResponse.NewErrorResponse(w, r, http.StatusBadRequest, "empty body")
 			return
 		}
 		if err != nil {
 			h.L.Debug("некорректное тело")
-			custom_response.NewErrorResponse(w, r, http.StatusBadRequest, "incorrect body")
+			customResponse.NewErrorResponse(w, r, http.StatusBadRequest, "incorrect body")
 			return
 		}
 
