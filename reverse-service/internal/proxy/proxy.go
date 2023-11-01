@@ -23,10 +23,14 @@ type Service struct {
 
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var target *url.URL
-	if strings.Contains(r.RequestURI, "/api/user") {
-		target, _ = url.Parse("http://" + s.User.Host + ":" + s.User.Port)
+	if strings.Contains(r.RequestURI, "/api/user/") {
+		t, err := url.Parse("http://localhost:8080/api/user/create")
+		if err != nil {
+			log.Print("Ошибка формирования URL", err)
+		}
+		target = t
 	} else if strings.Contains(r.RequestURI, "/api/autoCommentList") {
-		target, _ = url.Parse("http://" + s.Auth.Host + ":" + s.Auth.Port)
+		target, _ = url.Parse(s.Auth.Host + ":" + s.Auth.Port)
 	} else {
 		fmt.Fprintf(w, "404 Not Found")
 		return

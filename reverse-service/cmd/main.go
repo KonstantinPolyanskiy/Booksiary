@@ -7,13 +7,13 @@ import (
 
 func main() {
 	s := proxy.Service{
-		Auth: &proxy.Handle{
-			Host: "localhost",
-			Port: "8080",
+		Auth: &proxy.Handle{ //не реализованно
+			Host: "127.0.0.1",
+			Port: "9999",
 		},
 		User: &proxy.Handle{
-			Host: "localhost",
-			Port: "8081",
+			Host: "127.0.0.1",
+			Port: "8080",
 		},
 	}
 	err := proxy.StartServer(s)
