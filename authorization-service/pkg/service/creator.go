@@ -12,6 +12,21 @@ import (
 
 var resChan = make(chan Result)
 
+type SavingUserMap struct {
+	mu      *sync.Mutex
+	UserMap map[types.Code]types.SavingUser
+}
+
+func (sm *SavingUserMap) Add(code types.Code, user types.SavingUser) {
+	sm.mu.Lock()
+	sm.UserMap[code] = user
+	sm.mu.Unlock()
+}
+
+type Adder interface {
+	Add(code types.Code, user types.SavingUser)
+}
+
 type Result struct {
 	Message string
 	Error   error
@@ -22,31 +37,59 @@ var mu sync.Mutex
 var codeDataMap = map[types.Code]types.SavingUser{}
 
 type CreatorService struct {
+	userMap SavingUserMap
 }
 
-func NewCreatorService() *CreatorService {
-	return &CreatorService{}
+func NewCreatorService(um SavingUserMap) *CreatorService {
+	return &CreatorService{
+		userMap: um,
+	}
 }
 
-func (cs *CreatorService) UserCode(user types.SavingUser) error {
-	user.Code = types.MailAccessCodeData{
+func (cs *CreatorService) UserCode(user types.UserCreateResponse) error {
+	savingUser := types.SavingUser{
+		User: types.User{
+			Uuid: "",
+			Personality: types.Personality{
+				Name:    user.Name,
+				Surname: user.Surname,
+			},
+		},
+		Code: types.MailAccessCodeData{},
+	}
+	savingUser.Code = types.MailAccessCodeData{
 		AccessCode: random.Code(),
 		ExpiredAt:  time.Now().Add(2 * time.Minute),
 	}
 
-	code := types.Code{Code: user.Code.AccessCode}
+	code := types.Code{Code: savingUser.Code.AccessCode}
 
 	log.Print("Код - ", code)
 
-	go AddToMap(code, user)
-	go checkCodeExpiration(user)
+	cs.userMap.Add(code, savingUser)
+	CheckCodeExpiration(savingUser, cs.userMap.UserMap)
 
 	return CheckErrorChannel(resChan)
 }
 
-func (cs *CreatorService) CheckCode(code types.Code) (types.SavingUser, error) {
-	var user types.SavingUser
+func (cs *CreatorService) FindUserByCode(code types.Code) (types.SavingUser, error) {
+	user, err := searchUser(code, cs.userMap.UserMap)
+	if err != nil {
+		return types.SavingUser{}, err
+	}
 
+	return user, nil
+}
+
+func AddToMap(c types.Code, user types.SavingUser) {
+	mu.Lock()
+	codeDataMap[c] = user
+	mu.Unlock()
+}
+
+// searchUser ищет по переданному ключу пользователя в карте
+func searchUser(code types.Code, m map[types.Code]types.SavingUser) (types.SavingUser, error) {
+	var user types.SavingUser
 	if _, ok := codeDataMap[code]; !ok {
 		resChan <- Result{
 			Message: fmt.Sprintf("Код %v не найден", code),
@@ -54,29 +97,7 @@ func (cs *CreatorService) CheckCode(code types.Code) (types.SavingUser, error) {
 		}
 		return user, CheckErrorChannel(resChan)
 	}
+
 	user = codeDataMap[code]
-
 	return user, nil
-}
-
-func checkCodeExpiration(user types.SavingUser) {
-	t := time.NewTimer(time.Until(user.Code.ExpiredAt))
-	<-t.C
-
-	code := types.Code{Code: user.Code.AccessCode}
-
-	mu.Lock()
-	delete(codeDataMap, code)
-	mu.Unlock()
-
-	resChan <- Result{
-		Message: fmt.Sprintf("Время для кода %v истекло %v назад", user.Code.AccessCode, time.Now().Sub(user.Code.ExpiredAt).Milliseconds()),
-		Error:   errors.New("expired"),
-	}
-}
-
-func AddToMap(c types.Code, user types.SavingUser) {
-	mu.Lock()
-	codeDataMap[c] = user
-	mu.Unlock()
 }

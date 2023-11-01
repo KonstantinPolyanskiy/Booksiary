@@ -12,7 +12,7 @@ import (
 
 func (h *Handler) createUser(chiCtx *chi.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var input types.SavingUser
+		var input types.UserCreateResponse
 		err := render.DecodeJSON(r.Body, &input)
 		if errors.Is(err, io.EOF) {
 			h.L.Error("тело пустое")
@@ -52,7 +52,7 @@ func (h *Handler) createUserCallback(chi *chi.Context) http.HandlerFunc {
 			return
 		}
 
-		user, err := h.Service.Creator.CheckCode(input)
+		user, err := h.Service.Creator.FindUserByCode(input)
 		if err != nil {
 			h.L.Error(err.Error())
 		}
