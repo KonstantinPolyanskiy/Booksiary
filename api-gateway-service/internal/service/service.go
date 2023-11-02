@@ -23,3 +23,14 @@ func NewService(addrMap ProxyAddrMap) *Service {
 		ProxyAddrMap: addrMap,
 	}
 }
+
+// NewDirector возвращает
+func NewDirector(root Root, M map[Root]Handle) func(request *http.Request) {
+	director := func(request *http.Request) {
+		h := M[root] // Получение хоста/порта сервиса
+
+		request.URL.Scheme = "http"
+		request.URL.Host = h.Host + ":" + h.Port
+	}
+	return director
+}
