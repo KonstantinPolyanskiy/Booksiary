@@ -9,7 +9,9 @@ import (
 func (h *Handler) proxy(w http.ResponseWriter, r *http.Request) {
 	switch rootPath(r.URL.Path) {
 	case "/user":
-		h.service.Redirect(w, r)
+		h.service.UserService.Redirect(w, r, "/user")
+	case "/auth":
+		h.service.AuthService.Redirect(w, r, "/auth")
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "")

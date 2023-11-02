@@ -8,9 +8,14 @@ import (
 
 func main() {
 	m := service.NewProxyAddrMap()
+
 	m.M["/user"] = service.Handle{
 		Host: "localhost",
 		Port: "8080",
+	}
+	m.M["/auth"] = service.Handle{
+		Host: "localhost",
+		Port: "8081",
 	}
 
 	service := service.NewService(m)
