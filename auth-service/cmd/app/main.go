@@ -23,6 +23,7 @@ func main() {
 	go func() {
 		log.Fatalf("Ошибка в запуске сервера Авторизации - %v", server.Run(handlers.Init()))
 	}()
+	log.Print("Сервер запустился")
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
