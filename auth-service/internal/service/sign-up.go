@@ -1,6 +1,8 @@
 package service
 
-import "Booksiary/auth-service/internal/handler/domain"
+import (
+	"Booksiary/auth-service/internal/domain"
+)
 
 // Creator создает пользователя в системе, сохраняя авторизационные данные
 // и передавая их сервису Users
@@ -9,7 +11,6 @@ type Creator interface {
 }
 
 type AuthService struct {
-	Creator
 }
 
 func NewAuthService() *AuthService {
