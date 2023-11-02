@@ -22,10 +22,10 @@ func NewUserService(addrMap ProxyAddrMap) *UserService {
 
 func (s *UserService) Redirect(w http.ResponseWriter, r *http.Request) {
 	director := func(request *http.Request) {
-		request.URL.Scheme = "http"
-		request.URL.Host = "localhost:8080"
-		request.URL.Path = "/api/user/1"
+		h := s.M["/user"] // Получение хоста/порта сервиса
 
+		request.URL.Scheme = "http"
+		request.URL.Host = h.Host + ":" + h.Port
 	}
 
 	proxy := &httputil.ReverseProxy{Director: director}
