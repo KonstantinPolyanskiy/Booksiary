@@ -9,7 +9,7 @@ import (
 )
 
 type Redirector interface {
-	Redirect(w http.ResponseWriter, r *http.Request)
+	Redirect(w http.ResponseWriter, r *http.Request, root Root)
 }
 
 type UserService struct {
