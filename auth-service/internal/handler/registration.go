@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"Booksiary/auth-service/internal/handler/domain"
+	"Booksiary/auth-service/internal/domain"
 	"Booksiary/auth-service/internal/handler/lib"
 	"errors"
 	"github.com/go-chi/render"
@@ -25,7 +25,7 @@ func (h *Handler) signUp() http.HandlerFunc {
 			return
 		}
 
-		id, err := h.Service.AuthService.Creator.Create(input)
+		id, err := h.Service.AuthService.Create(input)
 
 		render.JSON(w, r, map[string]interface{}{
 			"ID": id,
