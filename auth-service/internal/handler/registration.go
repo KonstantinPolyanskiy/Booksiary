@@ -11,7 +11,7 @@ import (
 
 func (h *Handler) signUp() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var input domain.User
+		var input domain.UserRegistrationData
 
 		err := render.DecodeJSON(r.Body, &input)
 		if errors.Is(err, io.EOF) {
