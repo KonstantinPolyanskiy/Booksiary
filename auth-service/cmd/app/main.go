@@ -3,7 +3,9 @@ package main
 import (
 	"Booksiary/auth-service/internal/handler"
 	http_server "Booksiary/auth-service/internal/http-server"
+	"Booksiary/auth-service/internal/repository"
 	"Booksiary/auth-service/internal/service"
+	"github.com/spf13/viper"
 	"log"
 	"log/slog"
 	"os"
