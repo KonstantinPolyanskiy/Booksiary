@@ -1,7 +1,7 @@
 package service
 
 type Service struct {
-	Creator
+	*SignUpService
 	Updater
 	Deleter
 	Getter
@@ -9,9 +9,9 @@ type Service struct {
 
 func NewService() *Service {
 	return &Service{
-		Creator: NewCreator(),
-		Updater: NewUpdateService(),
-		Deleter: NewDeleteService(),
-		Getter:  NewGetterService(),
+		SignUpService: NewSignUpService(),
+		Updater:       NewUpdateService(),
+		Deleter:       NewDeleteService(),
+		Getter:        NewGetterService(),
 	}
 }

@@ -6,16 +6,11 @@ import (
 )
 
 func main() {
-	s := proxy.Service{
-		Auth: &proxy.Handle{ //не реализованно
-			Host: "127.0.0.1",
-			Port: "9999",
-		},
-		User: &proxy.Handle{
-			Host: "127.0.0.1",
-			Port: "8080",
-		},
-	}
+
+	s := proxy.Service{HandleMap: map[string]proxy.Handle{"user": {
+		Host: "localhost",
+		Port: "8080",
+	}}}
 	err := proxy.StartServer(s)
 	if err != nil {
 		log.Fatal(err)

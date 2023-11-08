@@ -7,7 +7,7 @@ import (
 
 type Service struct {
 	*AuthService
-	emailClient *mail.Client
+	*mail.Client
 }
 
 func NewService(repos *repository.Repository, emailClient *mail.Client) *Service {

@@ -21,7 +21,7 @@ func main() {
 
 	logger := slog.Logger{}
 
-	db, _ := repository.NewPostgresDB(repository.PostgresConfig{
+	db, err := repository.NewPostgresDB(repository.PostgresConfig{
 		Host:     viper.GetString("db.host"),
 		Port:     viper.GetString("db.port"),
 		Username: viper.GetString("db.username"),
@@ -29,9 +29,10 @@ func main() {
 		DBName:   viper.GetString("db.dbname"),
 		SSLMode:  viper.GetString("db.sslmode"),
 	})
-	/*if err != nil {
+	if err != nil {
 		log.Fatalf("Ошибка в созданни базы данных - %v", err)
-	}*/
+	}
+	codeStore :=
 	emailClient, err := mail.NewEmailClient(465, "smtp.mail.ru", "work.polyanskiy@mail.ru", "bVK6efcmcM89DRTG6EV5", "work.polyanskiy@mail.ru")
 	if err != nil {
 		log.Fatalf(err.Error())

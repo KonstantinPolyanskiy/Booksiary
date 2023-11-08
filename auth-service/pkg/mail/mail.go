@@ -6,10 +6,6 @@ import (
 	"time"
 )
 
-type Sender interface {
-	SendCode(code int) error
-}
-
 type Client struct {
 	server  *mail.SMTPServer
 	client  *mail.SMTPClient
@@ -27,19 +23,20 @@ func NewEmailClient(port int, host, username, password, emailAddress string) (*C
 	server.ConnectTimeout = 100 * time.Second
 	server.SendTimeout = 20 * time.Second
 
-	smtpClient, err := server.Connect()
-
-	if err != nil {
-		return nil, err
-	}
 	return &Client{
 		server:  server,
-		client:  smtpClient,
+		client:  nil,
 		address: emailAddress,
 	}, nil
 }
 
 func (c *Client) SendCode(code int, to string) error {
+	var err error
+
+	c.client, err = c.server.Connect()
+	if err != nil {
+		return err
+	}
 	email := mail.NewMSG()
 	email.SetFrom("work.polyanskiy@mail.ru").AddTo(to).SetSubject("Код регистрации")
 	email.GetFrom()

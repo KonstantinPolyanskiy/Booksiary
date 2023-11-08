@@ -17,23 +17,18 @@ type Handle struct {
 }
 
 type Service struct {
-	Auth *Handle
-	User *Handle
+	HandleMap map[string]Handle
 }
 
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var target *url.URL
-	if strings.Contains(r.RequestURI, "/api/user/") {
-		t, err := url.Parse("http://localhost:8080/api/user/create")
-		if err != nil {
-			log.Print("Ошибка формирования URL", err)
-		}
-		target = t
-	} else if strings.Contains(r.RequestURI, "/api/autoCommentList") {
-		target, _ = url.Parse(s.Auth.Host + ":" + s.Auth.Port)
+
+	handle, ok := s.HandleMap[r.Host]
+	if ok {
+		if strings.Contains(r.RequestURI, "")
 	} else {
-		fmt.Fprintf(w, "404 Not Found")
-		return
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(w, "")
 	}
 
 	tQuery := target.RawQuery
