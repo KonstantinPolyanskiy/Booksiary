@@ -14,9 +14,11 @@ type Creator interface {
 type UserProvider interface {
 	LoginOrEmailExist(login, password string) error
 }
+
+// CodeProvider отвечает за работу с пользователями, ожидающими подтверждения кода по почте
 type CodeProvider interface {
 	Add(code string, user domain.RegisteredUser) error
-	Get(code string) error
+	Get(code string) (domain.RegisteredUser, error)
 }
 type SignUpService struct {
 	Creator
