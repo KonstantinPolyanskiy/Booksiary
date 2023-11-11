@@ -1,17 +1,22 @@
 package service
 
+import (
+	"Booksiary/user-service/internal/domain"
+	"Booksiary/user-service/internal/mail"
+	"Booksiary/user-service/internal/repository"
+	"github.com/google/uuid"
+)
+
+type Registration interface {
+	SignUp(data domain.UserRegistrationData) error
+	SignUpCallback(code int) (uuid.UUID, error)
+}
 type Service struct {
-	*SignUpService
-	Updater
-	Deleter
-	Getter
+	Registration
 }
 
-func NewService() *Service {
+func NewService(repo *repository.Repository, client mail.Mail) *Service {
 	return &Service{
-		SignUpService: NewSignUpService(),
-		Updater:       NewUpdateService(),
-		Deleter:       NewDeleteService(),
-		Getter:        NewGetterService(),
+		Registration: NewSignUpService(repo, client),
 	}
 }
