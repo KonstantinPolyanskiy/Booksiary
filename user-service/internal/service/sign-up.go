@@ -2,42 +2,56 @@ package service
 
 import (
 	"Booksiary/user-service/internal/domain"
+	"Booksiary/user-service/internal/mail"
+	"Booksiary/user-service/internal/repository"
+	"Booksiary/user-service/internal/service/registration"
+	. "Booksiary/user-service/pkg/code"
 	"github.com/google/uuid"
+	"log"
 )
 
+// Sender отвечает за отправку кода на почту
 type Sender interface {
-	SendCode(code int) error
+	SendCode(code int, to string) error
 }
+
+// Creator отвечает за запись пользователя в хранилище
 type Creator interface {
-	Create(user domain.RegisteredUser) (uuid.UUID, error)
+	Record(user domain.RegisteredUser) (uuid.UUID, error)
 }
+
+// UserProvider отвечает за существование пользователя в системе
 type UserProvider interface {
-	LoginOrEmailExist(login, password string) error
+	LoginOrEmailExist(login, email string) error
 }
 
 // CodeProvider отвечает за работу с пользователями, ожидающими подтверждения кода по почте
 type CodeProvider interface {
-	Add(code string, user domain.RegisteredUser) error
-	Get(code string) (domain.RegisteredUser, error)
+	Add(code int, user domain.RegisteredUser) error
+	Get(code int) (domain.RegisteredUser, error)
 }
 type SignUpService struct {
 	Creator
+	Sender
 	UserProvider
+	CodeProvider
 }
 
-func NewSignUpService() *SignUpService {
-	return &SignUpService{}
+func NewSignUpService(repo *repository.Repository, client mail.Mail) *SignUpService {
+	return &SignUpService{
+		Creator:      registration.NewRecordService(repo),
+		Sender:       registration.NewSenderService(client),
+		UserProvider: registration.NewUserProviderService(),
+		CodeProvider: registration.NewConfirmService(repo.ConfirmationCode),
+	}
 }
 
-func (s *SignUpService) SignUp(data domain.UserRegistrationData) (uuid.UUID, error) {
-	//TODO: получить пользователя
-	//TODO: проверить занят ли логин и пароль
-	//TODO: сгенерировать код, отправить на почту, ждать пока он придет
-	//TODO: если код верен, сохранить пользователя в базу данных
-	//TODO: отправить логин/пароль вместе c UUID на сторонние сервисы
+func (s *SignUpService) SignUp(data domain.UserRegistrationData) error {
+	var code int
+
 	err := s.UserProvider.LoginOrEmailExist(data.Login, data.Email)
 	if err != nil {
-		return uuid.UUID{}, err
+		return err
 	}
 
 	user := domain.RegisteredUser{
@@ -47,6 +61,36 @@ func (s *SignUpService) SignUp(data domain.UserRegistrationData) (uuid.UUID, err
 		PasswordHash: data.Password,
 		Email:        data.Email,
 	}
-	userUUID, err := s.Creator.Create(user)
-	return userUUID, err
+	code = Code()
+
+	err = s.Sender.SendCode(code, user.Email)
+	if err != nil {
+		log.Printf("Ошибка в отправлении кода - %v\n", err)
+		return err
+	}
+	log.Printf("Код отправлен на почту")
+
+	err = s.CodeProvider.Add(code, user)
+	if err != nil {
+		log.Printf("Ошибка записи кода в badger - %v\n", err)
+		return err
+	}
+	log.Printf("Код записан в badger")
+
+	return nil
+}
+func (s *SignUpService) SignUpCallback(code int) (uuid.UUID, error) {
+	user, err := s.CodeProvider.Get(code)
+	if err != nil {
+		log.Printf("Ошибка в получении пользователя по коду - %v\n", err)
+		return uuid.UUID{}, err
+	}
+
+	userUUID, err := s.Creator.Record(user)
+	if err != nil {
+		log.Printf("Ошибка в записи пользователя в базу данных - %v\n", err)
+		return uuid.UUID{}, err
+	}
+
+	return userUUID, nil
 }
