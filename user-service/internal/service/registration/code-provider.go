@@ -6,10 +6,10 @@ import (
 )
 
 type ConfirmService struct {
-	repo repository.ConfirmationRepository
+	repo repository.ConfirmationCode
 }
 
-func NewConfirmService(repo repository.ConfirmationRepository) *ConfirmService {
+func NewConfirmService(repo repository.ConfirmationCode) *ConfirmService {
 	return &ConfirmService{
 		repo: repo,
 	}
