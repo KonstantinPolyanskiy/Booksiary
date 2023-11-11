@@ -24,10 +24,10 @@ func NewUserProviderService() *UserProviderService {
 
 func (s *UserProviderService) LoginOrEmailExist(login, email string) error {
 	//TODO: реализовать проверку существования логина и почты
-	receivedAccount, err := s.GetAccount(login)
-	if err != nil {
+	_, _ = s.GetAccount(login)
+	/*if err != nil {
 		return err
-	}
+	}*/
 
-	return existError
+	return nil
 }
