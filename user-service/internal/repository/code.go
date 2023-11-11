@@ -11,8 +11,8 @@ type ConfirmationRepository struct {
 	db *badger.DB
 }
 
-func NewConfirmationRepository(db *badger.DB) ConfirmationRepository {
-	return ConfirmationRepository{
+func NewConfirmationRepository(db *badger.DB) *ConfirmationRepository {
+	return &ConfirmationRepository{
 		db: db,
 	}
 }
