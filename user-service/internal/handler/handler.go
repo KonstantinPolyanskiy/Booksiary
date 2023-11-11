@@ -21,11 +21,7 @@ func (h *Handler) Init() *gin.Engine {
 		user := api.Group("/user")
 		{
 			user.POST("/create", h.createUser)
-			user.GET(":id", h.getUser)
-			user.DELETE(":id", h.deleteUser)
-			user.PUT(":id", h.updateUser)
-
-			user.POST("/user-data", h.createUserWithExternal)
+			user.POST("/code", h.createUserCallback)
 		}
 	}
 
