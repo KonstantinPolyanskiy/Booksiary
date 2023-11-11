@@ -3,12 +3,8 @@ package badger
 import "github.com/dgraph-io/badger/v4"
 
 func NewBadgerDB() (*badger.DB, error) {
-	opts := badger.Options{
-		Dir:      "",
-		Logger:   nil,
-		InMemory: true,
-	}
-	db, err := badger.Open(opts)
+
+	db, err := badger.Open(badger.DefaultOptions("").WithInMemory(true))
 	if err != nil {
 		return nil, err
 	}
