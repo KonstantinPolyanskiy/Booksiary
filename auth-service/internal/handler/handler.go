@@ -27,5 +27,12 @@ func (h *Handler) Init() *chi.Mux {
 		})
 	})
 
+	r.Route("/interaction", func(r chi.Router) {
+		r.Route("/user", func(r chi.Router) {
+			r.Get("/{login}", h.returnAccount())     // возвращает аккаунт пользователя
+			r.Post("/save-account", h.saveAccount()) //получает аккаунт пользователя и записывает в бд
+		})
+	})
+
 	return r
 }
