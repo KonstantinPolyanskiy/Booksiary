@@ -1,7 +1,9 @@
 package repository
 
 import (
+	"Booksiary/user-service/internal/domain"
 	"github.com/dgraph-io/badger/v4"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
