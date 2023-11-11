@@ -5,12 +5,24 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+type ConfirmationCode interface {
+	Add(code int, user domain.RegisteredUser) error
+	Get(code int) (domain.RegisteredUser, error)
+}
+
+type User interface {
+	Record(user domain.RegisteredUser) (uuid.UUID, error)
+	Delete(userUuid uuid.UUID) error
+}
+
 type Repository struct {
-	ConfirmationRepository
+	ConfirmationCode
+	User
 }
 
 func NewRepository(db *sqlx.DB, memoryDb *badger.DB) *Repository {
 	return &Repository{
-		ConfirmationRepository: NewConfirmationRepository(memoryDb),
+		ConfirmationCode: NewConfirmationRepository(memoryDb),
+		User:             NewUserRepository(db),
 	}
 }
