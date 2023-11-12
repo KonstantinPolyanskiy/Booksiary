@@ -25,10 +25,8 @@ func (h *Handler) signUp() http.HandlerFunc {
 			return
 		}
 
-		id, err := h.Service.AuthService.Create(input)
-
 		render.JSON(w, r, map[string]interface{}{
-			"ID": id,
+			"ID": "не реализованно",
 		})
 	}
 }

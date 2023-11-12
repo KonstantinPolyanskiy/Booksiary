@@ -1,18 +1,21 @@
 package repository
 
 import (
-	"Booksiary/auth-service/internal/repository/user"
+	"Booksiary/auth-service/internal/domain"
 	"github.com/jmoiron/sqlx"
 )
 
+type Account interface {
+	Get(login string) (domain.UserAccountResponse, error)
+	Save(account domain.UserAccountDB) error
+}
+
 type Repository struct {
-	RecordRepository user.RecordRepository
-	ExistRepository  user.ExistRepository
+	Account
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
-		RecordRepository: *user.NewRecordRepository(db),
-		ExistRepository:  *user.NewExistRepository(db),
+		Account: NewAccountRepository(db),
 	}
 }
