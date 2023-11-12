@@ -23,6 +23,7 @@ type Creator interface {
 // UserProvider отвечает за существование пользователя в системе
 type UserProvider interface {
 	LoginOrEmailExist(login, email string) error
+	SaveAccount(account domain.UserAccount) error
 }
 
 // CodeProvider отвечает за работу с пользователями, ожидающими подтверждения кода по почте
@@ -39,9 +40,9 @@ type SignUpService struct {
 
 func NewSignUpService(repo *repository.Repository, client mail.Mail) *SignUpService {
 	return &SignUpService{
-		Creator:      registration.NewRecordService(repo),
+		Creator:      registration.NewRecordService(repo.User),
 		Sender:       registration.NewSenderService(client),
-		UserProvider: registration.NewUserProviderService(),
+		UserProvider: registration.NewUserProviderService(repo.User),
 		CodeProvider: registration.NewConfirmService(repo.ConfirmationCode),
 	}
 }
@@ -91,6 +92,13 @@ func (s *SignUpService) SignUpCallback(code int) (uuid.UUID, error) {
 		log.Printf("Ошибка в записи пользователя в базу данных - %v\n", err)
 		return uuid.UUID{}, err
 	}
+
+	account := domain.UserAccount{
+		UUID:     userUUID,
+		Login:    user.Login,
+		Password: user.PasswordHash,
+	}
+	err = s.UserProvider.SaveAccount(account)
 
 	return userUUID, nil
 }
