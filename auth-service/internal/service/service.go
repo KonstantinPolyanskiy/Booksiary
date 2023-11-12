@@ -1,17 +1,21 @@
 package service
 
 import (
+	"Booksiary/auth-service/internal/domain"
 	"Booksiary/auth-service/internal/repository"
-	"Booksiary/auth-service/pkg/mail"
 )
 
-type Service struct {
-	*AuthService
-	*mail.Client
+type Account interface {
+	Get(login string) (domain.UserAccountResponse, error)
+	Save(account UserAccountRequest) error
 }
 
-func NewService(repos *repository.Repository, emailClient *mail.Client) *Service {
+type Service struct {
+	Account
+}
+
+func NewService(repos *repository.Repository) *Service {
 	return &Service{
-		AuthService: NewAuthService(repos, emailClient),
+		Account: NewAccountService(repos.Account),
 	}
 }
