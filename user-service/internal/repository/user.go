@@ -4,6 +4,7 @@ import (
 	"Booksiary/user-service/internal/domain"
 	"errors"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx"
 	"github.com/jmoiron/sqlx"
 	"log"
 	"time"
@@ -18,7 +19,24 @@ func NewUserRepository(db *sqlx.DB) *UserRepository {
 		db: db,
 	}
 }
+func (r *UserRepository) GetByEmail(email string) (domain.UserPersonality, error) {
+	var personality domain.UserPersonality
 
+	getUserByEmailQuery := `
+	SELECT name, surname, email
+	FROM person
+	WHERE email=$1
+`
+	err := r.db.Get(&personality, getUserByEmailQuery, email)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return domain.UserPersonality{}, nil
+	}
+	if err != nil {
+		return domain.UserPersonality{}, nil
+	}
+
+	return personality, nil
+}
 func (r *UserRepository) Record(user domain.RegisteredUser) (uuid.UUID, error) {
 	var userTechnicalId int
 	var createdUserUUID uuid.UUID
