@@ -1,5 +1,7 @@
 package domain
 
+import "github.com/google/uuid"
+
 type UserRegistrationData struct {
 	Name     string `json:"name"`
 	Surname  string `json:"surname"`
@@ -14,4 +16,16 @@ type RegisteredUser struct {
 	Login        string
 	PasswordHash string
 	Email        string
+}
+
+type UserAccountResponse struct {
+	UUID     uuid.UUID
+	Login    string `json:"login"`
+	Password string `json:"passwordHash"`
+}
+
+type UserAccountDB struct {
+	UUID         uuid.UUID
+	Login        string
+	PasswordHash string
 }
