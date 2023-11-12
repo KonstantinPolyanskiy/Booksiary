@@ -5,7 +5,6 @@ import (
 	http_server "Booksiary/auth-service/internal/http-server"
 	"Booksiary/auth-service/internal/repository"
 	"Booksiary/auth-service/internal/service"
-	"Booksiary/auth-service/pkg/mail"
 	"github.com/spf13/viper"
 	"log"
 	"log/slog"
@@ -32,13 +31,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Ошибка в созданни базы данных - %v", err)
 	}
-	codeStore :=
-	emailClient, err := mail.NewEmailClient(465, "smtp.mail.ru", "work.polyanskiy@mail.ru", "bVK6efcmcM89DRTG6EV5", "work.polyanskiy@mail.ru")
-	if err != nil {
-		log.Fatalf(err.Error())
-	}
 	repos := repository.NewRepository(db)
-	services := service.NewService(repos, emailClient)
+	services := service.NewService(repos)
 	handlers := handler.NewHandler(services, &logger)
 
 	server := new(http_server.Server)
