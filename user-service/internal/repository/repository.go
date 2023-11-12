@@ -15,6 +15,7 @@ type ConfirmationCode interface {
 type User interface {
 	Record(user domain.RegisteredUser) (uuid.UUID, error)
 	Delete(userUuid uuid.UUID) error
+	GetByEmail(email string) (domain.UserPersonality, error)
 }
 
 type Repository struct {
