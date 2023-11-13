@@ -23,7 +23,6 @@ func (h *Handler) Init() *chi.Mux {
 
 	r.Route("/api", func(r chi.Router) {
 		r.Route("/auth", func(r chi.Router) {
-			r.Post("/sign-up", h.signUp())
 		})
 	})
 

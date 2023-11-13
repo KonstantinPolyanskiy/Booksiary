@@ -17,7 +17,7 @@ func (h *Handler) getAccount() http.HandlerFunc {
 			lib.NewErrorResponse(w, r, http.StatusBadRequest, "пустой логин")
 			return
 		}
-		account, err := h.Service.Account.Get(login)
+		account, err := h.Service.Account.GetByLogin(login)
 		if err != nil {
 			lib.NewErrorResponse(w, r, http.StatusInternalServerError, err.Error())
 			return
