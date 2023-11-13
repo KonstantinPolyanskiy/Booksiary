@@ -9,8 +9,8 @@ import (
 
 type UserAccountRequest struct {
 	UUID     uuid.UUID `json:"UUID"`
-	Login    string    `json:"Login"`
-	Password string    `json:"Password"`
+	Login    string    `json:"login"`
+	Password string    `json:"password"`
 }
 
 type AccountService struct {
@@ -27,7 +27,7 @@ func (s *AccountService) Save(account UserAccountRequest) error {
 	accountDB := domain.UserAccountDB{
 		UUID:         account.UUID,
 		Login:        account.Login,
-		PasswordHash: password.Hash(account.Password, "gnerlrtnb98m7nzzwd'9"),
+		PasswordHash: password.Hash(account.Password, passwordSalt),
 	}
 	err := s.Account.Save(accountDB)
 	if err != nil {
