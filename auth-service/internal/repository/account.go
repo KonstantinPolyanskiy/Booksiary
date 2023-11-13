@@ -18,22 +18,36 @@ func NewAccountRepository(db *sqlx.DB) *AccountRepository {
 		db: db,
 	}
 }
+func (r *AccountRepository) Get(login, password string) (domain.UserAccount, error) {
+	var account domain.UserAccount
 
-func (r *AccountRepository) Get(login string) (domain.UserAccountResponse, error) {
-	var account domain.UserAccountResponse
+	getUserQuery := `
+	SELECT (uuid, login, passwordhash, role
+	FROM account
+	WHERE login=$1 AND passwordhash=$2
+`
+	err := r.db.Get(&account, getUserQuery, login, password)
+	if err != nil {
+		return domain.UserAccount{}, err
+	}
+
+	return account, nil
+}
+func (r *AccountRepository) GetByLogin(login string) (domain.UserAccount, error) {
+	var account domain.UserAccount
 
 	getUserByLoginQuery := `
-	SELECT (uuid, login, passwordhash)
+	SELECT (uuid, login, passwordhash, role)
 	FROM account
 	WHERE login=$1
 `
 
 	err := r.db.Get(&account, getUserByLoginQuery, login)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return domain.UserAccountResponse{}, nil
+		return domain.UserAccount{}, nil
 	}
 	if err != nil {
-		return domain.UserAccountResponse{}, err
+		return domain.UserAccount{}, err
 	}
 
 	return account, nil

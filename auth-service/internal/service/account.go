@@ -36,11 +36,16 @@ func (s *AccountService) Save(account UserAccountRequest) error {
 
 	return nil
 }
-func (s *AccountService) Get(login string) (domain.UserAccountResponse, error) {
-	account, err := s.Account.Get(login)
+func (s *AccountService) GetByLogin(login string) (domain.UserAccountResponse, error) {
+	account, err := s.Account.GetByLogin(login)
 	if err != nil {
 		return domain.UserAccountResponse{}, err
 	}
 
-	return account, nil
+	accountResponse := domain.UserAccountResponse{
+		UUID:     account.UUID,
+		Login:    account.Login,
+		Password: account.PasswordHash,
+	}
+	return accountResponse, nil
 }
