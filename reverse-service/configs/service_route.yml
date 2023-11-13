@@ -1,6 +1,0 @@
-user_service:
-  host: "localhost"
-  port: "8080"
-auth_service:
-  host: "localhost"
-  port: "8081"
