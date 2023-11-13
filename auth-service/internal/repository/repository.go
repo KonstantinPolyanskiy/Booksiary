@@ -6,7 +6,8 @@ import (
 )
 
 type Account interface {
-	Get(login string) (domain.UserAccountResponse, error)
+	Get(login, password string) (domain.UserAccount, error)
+	GetByLogin(login string) (domain.UserAccount, error)
 	Save(account domain.UserAccountDB) error
 }
 
